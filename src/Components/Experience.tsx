@@ -4,35 +4,33 @@ import waterfallVertShader from '../Shaders/Waterfall/vert.glsl'
 import waterfallFragShader from '../Shaders/Waterfall/frag.glsl'
 import { useFrame } from "@react-three/fiber"
 import { folder, useControls } from "leva"
-// import { useGLTF } from '@react-three/drei'
 
 const Experience = () => {
   const waterFallMeshRef = useRef<THREE.Mesh | null>(null)
-  // const { nodes } = useGLTF('models/plane.glb')
 
   const { gradientStrength, noiseStep, noiseScale, colorLayerL1, colorLayerL2, colorLayerL3, colorLayerL4, mixStrength, longLineColor, shortLineColor, topFoam } = useControls(
     {
       'Colors': folder({
         colorLayerL1: {
-          value: '#9DB7B1'
+          value: '#c2ded8'
         },
         colorLayerL2: {
-          value: '#2D5557'
+          value: '#5ea3a7'
         },
         colorLayerL3: {
-          value: '#447B71'
+          value: '#27d6cc'
         },
         colorLayerL4: {
-          value: '#ff0000'
+          value: '#cae6e1'
         },
         longLineColor: {
-          value: '#00ff00'
+          value: '#000000'
         },
         shortLineColor: {
-          value: '#00ff00'
+          value: '#ffffff'
         },
         topFoam: {
-          value: '#c4c4c4'
+          value: '#ebebeb'
         }
       }),
       'Layer 1': folder({
@@ -97,7 +95,7 @@ const Experience = () => {
   useFrame((state) => {
     if (waterFallMeshRef.current) {
       const waterFallMaterial = waterFallMeshRef.current.material as THREE.ShaderMaterial
-      waterFallMaterial.uniforms.uTime.value = state.clock.elapsedTime
+      waterFallMaterial.uniforms.uTime.value = state.clock.elapsedTime * 0.5
       waterFallMaterial.uniforms.uGradientStrength.value = gradientStrength
       waterFallMaterial.uniforms.uNoiseStep.value = noiseStep
       waterFallMaterial.uniforms.uNoiseScale.value = noiseScale
@@ -106,9 +104,8 @@ const Experience = () => {
       waterFallMaterial.uniforms.uColorLayerL2.value.set(colorLayerL2)
       waterFallMaterial.uniforms.uColorLayerL3.value.set(colorLayerL3)
       waterFallMaterial.uniforms.uColorLayerL4.value.set(colorLayerL4)
-      waterFallMaterial.uniforms.uLongLineColor.value.set(colorLayerL4)
-      waterFallMaterial.uniforms.uShortLineColor.value.set(shortLineColor)
       waterFallMaterial.uniforms.uLongLineColor.value.set(longLineColor)
+      waterFallMaterial.uniforms.uShortLineColor.value.set(shortLineColor)
       waterFallMaterial.uniforms.uTopFoamColor.value.set(topFoam)
     }
   })
@@ -116,47 +113,6 @@ const Experience = () => {
   return (
     <>
       <mesh ref={waterFallMeshRef} geometry={waterfallGeometry} material={waterfallMaterial} />
-
-      {/* <group dispose={null}> */}
-      {/*   <mesh */}
-      {/*     name="Plane019" */}
-      {/*     castShadow */}
-      {/*     receiveShadow */}
-      {/*     geometry={nodes.Plane019.geometry} */}
-      {/*     material={waterfallMaterial} */}
-      {/*     position={[-12.455, 18.333, -27.76]} */}
-      {/*     scale={[3.08, 1.912, 1.912]} */}
-      {/*   /> */}
-      {/*   <mesh */}
-      {/*     name="Plane020" */}
-      {/*     castShadow */}
-      {/*     receiveShadow */}
-      {/*     geometry={nodes.Plane020.geometry} */}
-      {/*     material={waterfallMaterial} */}
-      {/*     position={[-5.385, 18.333, -27.596]} */}
-      {/*     rotation={[0, 0.08, 0]} */}
-      {/*     scale={[2.926, 1.912, 1.917]} */}
-      {/*   /> */}
-      {/*   <mesh */}
-      {/*     name="Plane021" */}
-      {/*     castShadow */}
-      {/*     receiveShadow */}
-      {/*     geometry={nodes.Plane021.geometry} */}
-      {/*     material={waterfallMaterial} */}
-      {/*     position={[-18.639, 18.333, -27.76]} */}
-      {/*     scale={[2.95, 1.912, 1.912]} */}
-      {/*   /> */}
-      {/*   <mesh */}
-      {/*     name="Plane022" */}
-      {/*     castShadow */}
-      {/*     receiveShadow */}
-      {/*     geometry={nodes.Plane022.geometry} */}
-      {/*     material={waterfallMaterial} */}
-      {/*     position={[0.643, 18.333, -27.596]} */}
-      {/*     rotation={[0, 0.08, 0]} */}
-      {/*     scale={[2.903, 1.912, 1.917]} */}
-      {/*   /> */}
-      {/* </group> */}
     </>
   )
 }

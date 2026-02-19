@@ -47,12 +47,9 @@ vec3 layer3() {
   localUv.y *= 6.0;
 
   float noise = perlinNoise3D(vec3(vUv.x * 4.0, vUv.y * 8.0, uTime * 0.8));
-
   localUv += noise * 1.3;
   float dist = step(0.5, length(localUv - vec2(0.5, 5.0)));
-
-  // return vec3(dist);
-  return mix(layer2Color, uColorLayerL3, 1.0 - dist);
+  return mix(layer2Color, uColorLayerL4, 1.0 - dist);
 }
 
 vec3 longLineLayer() {
@@ -83,9 +80,9 @@ vec3 shortLineLayer() {
 
   vec2 maskingUv = vUv;
 
-  maskingUv.y *= 4.0;
+  maskingUv.y *= 10.0;
   maskingUv.x *= 0.5;
-  float centerRegion = length(maskingUv - vec2(0.25, 1.5));
+  float centerRegion = length(maskingUv - vec2(0.25, 3.5));
   centerRegion = smoothstep(0.6, 0.7, centerRegion);
   centerRegion = 1.0 - centerRegion;
 
@@ -96,15 +93,16 @@ vec3 shortLineLayer() {
 
   vec3 layer3Color = layer3();
   vec4 layer3ColorRGBA = vec4(layer3Color, 1.0);
-  float lineMask = step(0.995, abs(sin(distortedUv.x * 25.0)));
+  float lineMask = step(0.995, abs(sin(distortedUv.x * 20.0)));
 
-  vec4 lineColor = vec4(uShortLineColor, 0.2);
+  vec4 lineColor = vec4(uShortLineColor, 0.5);
   float finalMask = lineMask * centerRegion;
 
   vec3 finalColor =
       mix(lineColor.rgb, longLineLayerColor.rgb, 1.0 - finalMask * lineColor.a);
 
   return finalColor;
+  // return vec3(finalMask);
 }
 
 vec3 whiteFoamLayer() {
@@ -126,9 +124,6 @@ vec3 whiteFoamLayer() {
 
 void main() {
   vec3 finalColor = vec3(1.0);
-  finalColor = layer3();
-  // finalColor = shortLineLayer();
   finalColor = whiteFoamLayer();
-  // gl_FragColor = finalColor;
   gl_FragColor = vec4(finalColor, 1.0);
 }

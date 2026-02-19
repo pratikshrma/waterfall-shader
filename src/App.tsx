@@ -1,11 +1,12 @@
 import { OrbitControls } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import Experience from "./Components/Experience"
+import * as THREE from 'three'
 
 const App = () => {
   return (
     <>
-      <Canvas flat>
+      <Canvas flat gl={{ toneMapping: THREE.NoToneMapping }}>
         <color attach='background' args={['#ccc']} />
         <OrbitControls />
         <Experience />
