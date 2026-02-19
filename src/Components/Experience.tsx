@@ -4,13 +4,13 @@ import waterfallVertShader from '../Shaders/Waterfall/vert.glsl'
 import waterfallFragShader from '../Shaders/Waterfall/frag.glsl'
 import { useFrame } from "@react-three/fiber"
 import { folder, useControls } from "leva"
-import { useGLTF } from '@react-three/drei'
+// import { useGLTF } from '@react-three/drei'
 
 const Experience = () => {
   const waterFallMeshRef = useRef<THREE.Mesh | null>(null)
-  const { nodes } = useGLTF('models/plane.glb')
+  // const { nodes } = useGLTF('models/plane.glb')
 
-  const { gradientStrength, noiseStep, noiseScale, colorLayerL1, colorLayerL2, colorLayerL3, colorLayerL4, mixStrength, longLineColor, shortLineColor } = useControls(
+  const { gradientStrength, noiseStep, noiseScale, colorLayerL1, colorLayerL2, colorLayerL3, colorLayerL4, mixStrength, longLineColor, shortLineColor, topFoam } = useControls(
     {
       'Colors': folder({
         colorLayerL1: {
@@ -30,6 +30,9 @@ const Experience = () => {
         },
         shortLineColor: {
           value: '#00ff00'
+        },
+        topFoam: {
+          value: '#c4c4c4'
         }
       }),
       'Layer 1': folder({
@@ -80,7 +83,8 @@ const Experience = () => {
         uColorLayerL3: { value: new THREE.Color() },
         uColorLayerL4: { value: new THREE.Color() },
         uLongLineColor: { value: new THREE.Color() },
-        uShortLineColor: { value: new THREE.Color() }
+        uShortLineColor: { value: new THREE.Color() },
+        uTopFoamColor: { value: new THREE.Color() }
       },
       toneMapped: false
     })
@@ -105,6 +109,7 @@ const Experience = () => {
       waterFallMaterial.uniforms.uLongLineColor.value.set(colorLayerL4)
       waterFallMaterial.uniforms.uShortLineColor.value.set(shortLineColor)
       waterFallMaterial.uniforms.uLongLineColor.value.set(longLineColor)
+      waterFallMaterial.uniforms.uTopFoamColor.value.set(topFoam)
     }
   })
 
@@ -112,46 +117,46 @@ const Experience = () => {
     <>
       <mesh ref={waterFallMeshRef} geometry={waterfallGeometry} material={waterfallMaterial} />
 
-      <group dispose={null}>
-        <mesh
-          name="Plane019"
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane019.geometry}
-          material={waterfallMaterial}
-          position={[-12.455, 18.333, -27.76]}
-          scale={[3.08, 1.912, 1.912]}
-        />
-        <mesh
-          name="Plane020"
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane020.geometry}
-          material={waterfallMaterial}
-          position={[-5.385, 18.333, -27.596]}
-          rotation={[0, 0.08, 0]}
-          scale={[2.926, 1.912, 1.917]}
-        />
-        <mesh
-          name="Plane021"
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane021.geometry}
-          material={waterfallMaterial}
-          position={[-18.639, 18.333, -27.76]}
-          scale={[2.95, 1.912, 1.912]}
-        />
-        <mesh
-          name="Plane022"
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane022.geometry}
-          material={waterfallMaterial}
-          position={[0.643, 18.333, -27.596]}
-          rotation={[0, 0.08, 0]}
-          scale={[2.903, 1.912, 1.917]}
-        />
-      </group>
+      {/* <group dispose={null}> */}
+      {/*   <mesh */}
+      {/*     name="Plane019" */}
+      {/*     castShadow */}
+      {/*     receiveShadow */}
+      {/*     geometry={nodes.Plane019.geometry} */}
+      {/*     material={waterfallMaterial} */}
+      {/*     position={[-12.455, 18.333, -27.76]} */}
+      {/*     scale={[3.08, 1.912, 1.912]} */}
+      {/*   /> */}
+      {/*   <mesh */}
+      {/*     name="Plane020" */}
+      {/*     castShadow */}
+      {/*     receiveShadow */}
+      {/*     geometry={nodes.Plane020.geometry} */}
+      {/*     material={waterfallMaterial} */}
+      {/*     position={[-5.385, 18.333, -27.596]} */}
+      {/*     rotation={[0, 0.08, 0]} */}
+      {/*     scale={[2.926, 1.912, 1.917]} */}
+      {/*   /> */}
+      {/*   <mesh */}
+      {/*     name="Plane021" */}
+      {/*     castShadow */}
+      {/*     receiveShadow */}
+      {/*     geometry={nodes.Plane021.geometry} */}
+      {/*     material={waterfallMaterial} */}
+      {/*     position={[-18.639, 18.333, -27.76]} */}
+      {/*     scale={[2.95, 1.912, 1.912]} */}
+      {/*   /> */}
+      {/*   <mesh */}
+      {/*     name="Plane022" */}
+      {/*     castShadow */}
+      {/*     receiveShadow */}
+      {/*     geometry={nodes.Plane022.geometry} */}
+      {/*     material={waterfallMaterial} */}
+      {/*     position={[0.643, 18.333, -27.596]} */}
+      {/*     rotation={[0, 0.08, 0]} */}
+      {/*     scale={[2.903, 1.912, 1.917]} */}
+      {/*   /> */}
+      {/* </group> */}
     </>
   )
 }

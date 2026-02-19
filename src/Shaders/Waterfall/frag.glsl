@@ -1,5 +1,6 @@
 #include "../Deps/glsl-perlin-noise/perlin.glsl"
 #include "../Deps/glsl-voronoi-noise/2d.glsl"
+#include "../Deps/glsl-voronoi-noise/3d.glsl"
 
 varying vec2 vUv;
 
@@ -13,6 +14,7 @@ uniform vec3 uColorLayerL3;
 uniform vec3 uColorLayerL4;
 uniform vec3 uLongLineColor;
 uniform vec3 uShortLineColor;
+uniform vec3 uTopFoamColor;
 uniform float uTime;
 
 vec3 layer1() {
@@ -42,27 +44,22 @@ vec3 layer3() {
   vec3 layer2Color = layer2();
   vec2 localUv = vUv;
   localUv.x *= 1.0;
-  localUv.y *= 5.0;
-  vec2 noiseOffset = vec2(perlinNoise3D(vec3(vUv.xy * 2.0, 1.0)),
-                          perlinNoise3D(vec3(vUv.xy * 5.0, 0.0)));
-  vec2 distortedUv = vUv + noiseOffset * 0.5;
-  float mask = smoothstep(0.0, 0.7, length(localUv - vec2(0.5, 3.5)));
-  mask = 1.0 - mask;
+  localUv.y *= 6.0;
 
-  float noise =
-      1.0 -
-      step(0.5, voronoi2d(distortedUv * uNoiseScale * 0.5 + uTime * 0.25));
-  float noisyMask = mask * noise;
-  vec3 maskColor = uColorLayerL4;
+  float noise = perlinNoise3D(vec3(vUv.x * 4.0, vUv.y * 8.0, uTime * 0.8));
 
-  return mix(layer2Color, maskColor, noisyMask);
+  localUv += noise * 1.3;
+  float dist = step(0.5, length(localUv - vec2(0.5, 5.0)));
+
+  // return vec3(dist);
+  return mix(layer2Color, uColorLayerL3, 1.0 - dist);
 }
 
 vec3 longLineLayer() {
   float offsetX = perlinNoise3D(vec3(vUv * 3.0, uTime * 0.1));
   float offsetY = perlinNoise3D(vec3(vUv * 3.0 + 100.0, uTime * 0.1));
 
-  vec2 offset = vec2(offsetX, offsetY) * 0.1; // 0.1 = distortion strength
+  vec2 offset = vec2(offsetX, offsetY) * 0.031; // 0.1 = distortion strength
 
   // Apply distortion
   vec2 distortedUv = vUv + offset;
@@ -85,6 +82,7 @@ vec3 shortLineLayer() {
   vec3 longLineLayerColor = longLineLayer();
 
   vec2 maskingUv = vUv;
+
   maskingUv.y *= 4.0;
   maskingUv.x *= 0.5;
   float centerRegion = length(maskingUv - vec2(0.25, 1.5));
@@ -109,29 +107,28 @@ vec3 shortLineLayer() {
   return finalColor;
 }
 
-// vec3 whiteFoamLayer() {
-//   vec2 maskingUv = vUv;
-//   maskingUv.y *= 4.0;
-//
-//   float baseMask = length(maskingUv - vec2(0.5, 3.7));
-//   baseMask = smoothstep(0.7, 0.9, baseMask);
-//
-//   vec2 foamMaskUv = vUv;
-//   foamMaskUv.y *= 4.0;
-//   float noise = perlinNoise3D(vec3(foamMaskUv * 10.0, 1.0));
-//   foamMaskUv.y += noise;
-//
-//   float foamMask = length(foamMaskUv - vec2(0.5, 3.8));
-//   foamMask = step(0.6, foamMask);
-//
-//   return vec3(foamMask);
-// }
+vec3 whiteFoamLayer() {
+  vec3 shortLineLayerColor = shortLineLayer();
+
+  vec2 foamMaskUv = vUv;
+  foamMaskUv.y *= 0.8;
+  float noise = perlinNoise3D(vec3(foamMaskUv * 10.0 + uTime, uTime));
+  foamMaskUv.y += noise;
+  vec2 toCenter = foamMaskUv - vec2(0.5, 1.5);
+  toCenter.x *= 0.5;
+  float foamMask = length(toCenter);
+  foamMask = 1.0 - foamMask;
+  foamMask *= pow(vUv.y, 2.0); // kills bottom, preserves top
+  foamMask = step(0.3, foamMask);
+
+  return mix(shortLineLayerColor, uTopFoamColor, foamMask);
+}
 
 void main() {
   vec3 finalColor = vec3(1.0);
-  // finalColor = layer3();
-  finalColor = shortLineLayer();
-  // finalColor = whiteFoamLayer();
+  finalColor = layer3();
+  // finalColor = shortLineLayer();
+  finalColor = whiteFoamLayer();
   // gl_FragColor = finalColor;
   gl_FragColor = vec4(finalColor, 1.0);
 }
