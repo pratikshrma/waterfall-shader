@@ -2,15 +2,37 @@ import { useMemo, useRef } from "react"
 import * as THREE from 'three'
 import waterfallVertShader from '../Shaders/Waterfall/vert.glsl'
 import waterfallFragShader from '../Shaders/Waterfall/frag.glsl'
+import waterfallBaseFragShader from '../Shaders/WaterfallBase/frag.glsl'
+import waterfallBaseVertShader from '../Shaders/WaterfallBase/vert.glsl'
 import { useFrame } from "@react-three/fiber"
 import { folder, useControls } from "leva"
 
 const Experience = () => {
   const waterFallMeshRef = useRef<THREE.Mesh | null>(null)
+  const waterFallBaseMeshRef = useRef<THREE.Mesh | null>(null)
 
-  const { gradientStrength, noiseStep, noiseScale, colorLayerL1, colorLayerL2, colorLayerL3, colorLayerL4, mixStrength, longLineColor, shortLineColor, topFoam } = useControls(
+  const { gradientStrength,
+    noiseStep,
+    noiseScale,
+    colorLayerL1,
+    colorLayerL2,
+    colorLayerL3,
+    colorLayerL4,
+    mixStrength,
+    longLineColor,
+    shortLineColor,
+    topFoam,
+    baseColor1,
+    baseColor2,
+    baseColor3,
+    baseColor4,
+    baseColor5,
+    baseColor6,
+    baseColor7,
+    baseColor8,
+  } = useControls(
     {
-      'Colors': folder({
+      'Waterfall Color': folder({
         colorLayerL1: {
           value: '#c2ded8'
         },
@@ -32,6 +54,32 @@ const Experience = () => {
         topFoam: {
           value: '#ebebeb'
         }
+      }),
+      'Base Color': folder({
+        baseColor1: {
+          value: '#c2ded8'
+        },
+        baseColor2: {
+          value: '#5ea3a7'
+        },
+        baseColor3: {
+          value: '#27d6cc'
+        },
+        baseColor4: {
+          value: '#cae6e1'
+        },
+        baseColor5: {
+          value: '#ffffff'
+        },
+        baseColor6: {
+          value: '#ff0000'
+        },
+        baseColor7: {
+          value: '#00ff00'
+        },
+        baseColor8: {
+          value: '#0000ff'
+        },
       }),
       'Layer 1': folder({
         gradientStrength: {
@@ -65,7 +113,7 @@ const Experience = () => {
   )
 
   const { waterfallGeometry, waterfallMaterial } = useMemo(() => {
-    const geo = new THREE.PlaneGeometry(1, 3)
+    const geo = new THREE.PlaneGeometry(1, 3, 128, 128)
     const mat = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
       vertexShader: waterfallVertShader,
@@ -92,6 +140,32 @@ const Experience = () => {
     }
   }, [])
 
+
+  const { waterfallBaseGeometry, waterfallBaseMaterial } = useMemo(() => {
+    const geo = new THREE.PlaneGeometry(4, 4, 128, 128)
+    const mat = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
+      vertexShader: waterfallBaseVertShader,
+      fragmentShader: waterfallBaseFragShader,
+      uniforms: {
+        uTime: { value: 0.0 },
+        uBaseColor1: { value: new THREE.Color() },
+        uBaseColor2: { value: new THREE.Color() },
+        uBaseColor3: { value: new THREE.Color() },
+        uBaseColor4: { value: new THREE.Color() },
+        uBaseColor5: { value: new THREE.Color() },
+        uBaseColor6: { value: new THREE.Color() },
+        uBaseColor7: { value: new THREE.Color() },
+        uBaseColor8: { value: new THREE.Color() },
+      },
+      toneMapped: false
+    })
+    return {
+      waterfallBaseGeometry: geo,
+      waterfallBaseMaterial: mat
+    }
+  }, [])
+
   useFrame((state) => {
     if (waterFallMeshRef.current) {
       const waterFallMaterial = waterFallMeshRef.current.material as THREE.ShaderMaterial
@@ -108,11 +182,26 @@ const Experience = () => {
       waterFallMaterial.uniforms.uShortLineColor.value.set(shortLineColor)
       waterFallMaterial.uniforms.uTopFoamColor.value.set(topFoam)
     }
+
+    if (waterFallBaseMeshRef.current) {
+      const waterFallBaseMaterial = waterFallBaseMeshRef.current.material as THREE.ShaderMaterial
+
+      waterFallBaseMaterial.uniforms.uTime.value = state.clock.elapsedTime
+      waterFallBaseMaterial.uniforms.uBaseColor1.value.set(baseColor1)
+      waterFallBaseMaterial.uniforms.uBaseColor2.value.set(baseColor2)
+      waterFallBaseMaterial.uniforms.uBaseColor3.value.set(baseColor3)
+      waterFallBaseMaterial.uniforms.uBaseColor4.value.set(baseColor4)
+      waterFallBaseMaterial.uniforms.uBaseColor5.value.set(baseColor5)
+      waterFallBaseMaterial.uniforms.uBaseColor6.value.set(baseColor5)
+      waterFallBaseMaterial.uniforms.uBaseColor7.value.set(baseColor5)
+      waterFallBaseMaterial.uniforms.uBaseColor8.value.set(baseColor5)
+    }
   })
 
   return (
     <>
-      <mesh ref={waterFallMeshRef} geometry={waterfallGeometry} material={waterfallMaterial} />
+      {/* <mesh ref={waterFallMeshRef} geometry={waterfallGeometry} material={waterfallMaterial} /> */}
+      <mesh rotation={[Math.PI / 1.5, 0, 0]} ref={waterFallBaseMeshRef} geometry={waterfallBaseGeometry} material={waterfallBaseMaterial} />
     </>
   )
 }
