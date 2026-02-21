@@ -12,6 +12,11 @@ uniform vec3 uBaseColor5;
 uniform vec3 uBaseColor6;
 uniform vec3 uBaseColor7;
 uniform vec3 uBaseColor8;
+uniform vec3 uBaseColor9;
+uniform vec3 uBaseColor10;
+uniform vec3 uBaseColor11;
+uniform vec3 uBaseColor12;
+uniform vec3 uBaseColor13;
 uniform float uTime;
 
 vec2 hash2(vec2 p) {
@@ -71,6 +76,41 @@ vec3 layer2() {
 
 vec3 layer3() {
   vec3 layer2Color = layer2();
+
+  vec2 modifiedvUv = -vUv;
+  modifiedvUv.y *= 8.0;
+  modifiedvUv.y += 7.3;
+  float linearGradient = pow(modifiedvUv.y, 4.0);
+  float voronoiNoise = voronoi2d(vUv * 15.0);
+  float perlinNoise = perlinNoise3D(vec3(vUv * 15.0, 0.0));
+
+  linearGradient += voronoiNoise;
+  linearGradient += perlinNoise;
+  linearGradient = step(0.95, linearGradient);
+
+  return mix(layer2Color, uBaseColor6, 1.0 - linearGradient);
+}
+
+vec3 layer4() {
+  vec3 layer3Color = layer3();
+
+  vec2 modifiedvUv = -vUv;
+  modifiedvUv.y *= 8.0;
+  modifiedvUv.y += 8.5;
+  float linearGradient = pow(modifiedvUv.y, 4.0);
+  float voronoiNoise = voronoi2d(vUv * 15.0);
+  float perlinNoise = perlinNoise3D(vec3(vUv * 15.0, 0.0));
+
+  linearGradient += voronoiNoise;
+  linearGradient += perlinNoise;
+  linearGradient = step(0.95, linearGradient);
+
+  return mix(layer3Color, uBaseColor7, 1.0 - linearGradient);
+  // return vec3(linearGradient);
+}
+
+vec3 randomBubbles() {
+  vec3 layer4Color = layer4();
   vec2 modifiedvUv = vUv;
   modifiedvUv.y *= 2.0;
 
@@ -79,11 +119,11 @@ vec3 layer3() {
   noise += perlinNoise3D(vec3(vUv * 60.0, 0.0));
   noise = step(0.80, noise);
 
-  return mix(layer2Color, uBaseColor4, noise);
+  return mix(layer4Color, uBaseColor4, noise);
 }
 
-vec3 layer4FoamLayer() {
-  vec3 layer3Color = layer3();
+vec3 foamLayer() {
+  vec3 randomBubbleColor = randomBubbles();
   vec2 modifiedvUv = vUv;
 
   float uvNoise = perlinNoise3D(vec3(vUv * 1.5, 0.1));
@@ -112,19 +152,11 @@ vec3 layer4FoamLayer() {
   foam = step(0.015, foam);
   foam = 1.0 - foam;
 
-  // return vec3(foam * gradientMask);
-  // return vec3(gradientMask);
-  // return vec3(foam);
-  return mix(layer3Color, uBaseColor5, foam * gradientMask);
-}
-
-vec3 layer5() {
-  vec3 layer4Color = layer4FoamLayer();
-  return vec3(1.0);
+  return mix(randomBubbleColor, uBaseColor5, foam * gradientMask);
 }
 
 void main() {
   vec3 finalColor = vec3(1.0);
-  vec3 layer1Color = layer4FoamLayer();
-  gl_FragColor = vec4(layer1Color, 1.0);
+  finalColor = foamLayer();
+  gl_FragColor = vec4(finalColor, 1.0);
 }

@@ -4,18 +4,13 @@ import waterfallVertShader from '../Shaders/Waterfall/vert.glsl'
 import waterfallFragShader from '../Shaders/Waterfall/frag.glsl'
 import waterfallBaseFragShader from '../Shaders/WaterfallBase/frag.glsl'
 import waterfallBaseVertShader from '../Shaders/WaterfallBase/vert.glsl'
-import waterfallSplashAreaVertShader from '../Shaders/WaterfallSplashArea/vert.glsl'
-import waterfallSplashAreaFragShader from '../Shaders/WaterfallSplashArea/frag.glsl'
 import { useFrame } from "@react-three/fiber"
 import { folder, useControls } from "leva"
-import { useGLTF } from "@react-three/drei"
 
 const Experience = () => {
   const waterFallMeshRef = useRef<THREE.Mesh | null>(null)
   const waterFallBaseMeshRef = useRef<THREE.Mesh | null>(null)
   const waterFallSplashAreaMeshRef = useRef<THREE.Mesh | null>(null)
-
-  const { nodes: splashAreaNodes } = useGLTF('models/stylizedwaterfallSplashArea.glb')
 
   const { gradientStrength,
     noiseStep,
@@ -41,9 +36,6 @@ const Experience = () => {
     baseColor11,
     baseColor12,
     baseColor13,
-    splashColor1,
-    splashColor2,
-    splashColor3,
   } = useControls(
     {
       'Waterfall Color': folder({
@@ -136,16 +128,7 @@ const Experience = () => {
           step: 0.1
         },
       }),
-      'Splash Area': folder({
-        splashColor1: {
-          value: '#ffffff'
-        },
-        splashColor2: {
-          value: '#00ccff'
-        },
-        splashColor3: {
-          value: '#cc00cc'
-        },
+      'Layer 2': folder({
       })
     }
   )
@@ -210,28 +193,12 @@ const Experience = () => {
   }, [])
 
   const { waterfallSplashAreaGeometry, waterfallSplashAreaMaterial } = useMemo(() => {
-    // const path = new THREE.LineCurve3(
-    //   new THREE.Vector3(-3, 0, 0),
-    //   new THREE.Vector3(3, 0, 0)
-    // )
-    // const waterfallSplashAreaGeometry = new THREE.TubeGeometry(path, 64, 0.3, 8, false)
-    const waterfallSplashAreaGeometry = (splashAreaNodes.NurbsPath as THREE.Mesh).geometry
-    // const waterfallSplashAreaMaterial = new THREE.MeshNormalMaterial({
-    //   side: THREE.DoubleSide,
-    // })
-    const waterfallSplashAreaMaterial = new THREE.ShaderMaterial({
-      side: THREE.DoubleSide,
-      vertexShader: waterfallSplashAreaVertShader,
-      fragmentShader: waterfallSplashAreaFragShader,
-
-      uniforms: {
-        uTime: { value: 0.0 },
-        uSplashColor1: { value: new THREE.Color() },
-        uSplashColor2: { value: new THREE.Color() },
-        uSplashColor3: { value: new THREE.Color() },
-      },
-      toneMapped: false
-    })
+    const path = new THREE.LineCurve3(
+      new THREE.Vector3(0, -5, 0),
+      new THREE.Vector3(0, 5, 0)
+    )
+    const waterfallSplashAreaGeometry = new THREE.TubeGeometry(path)
+    const waterfallSplashAreaMaterial = new THREE.MeshNormalMaterial()
 
     return { waterfallSplashAreaGeometry, waterfallSplashAreaMaterial }
   }, [])
@@ -270,15 +237,6 @@ const Experience = () => {
       waterFallBaseMaterial.uniforms.uBaseColor11.value.set(baseColor11)
       waterFallBaseMaterial.uniforms.uBaseColor12.value.set(baseColor12)
       waterFallBaseMaterial.uniforms.uBaseColor13.value.set(baseColor13)
-    }
-
-    if (waterFallSplashAreaMeshRef.current) {
-      const waterfallSplashMaterial = waterFallSplashAreaMeshRef.current.material as THREE.ShaderMaterial
-
-      waterfallSplashMaterial.uniforms.uTime.value = state.clock.elapsedTime
-      waterfallSplashMaterial.uniforms.uSplashColor1.value.set(splashColor1)
-      waterfallSplashMaterial.uniforms.uSplashColor2.value.set(splashColor2)
-      waterfallSplashMaterial.uniforms.uSplashColor3.value.set(splashColor3)
     }
   })
 
