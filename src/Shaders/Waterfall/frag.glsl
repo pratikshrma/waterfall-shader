@@ -15,6 +15,7 @@ uniform vec3 uColorLayerL4;
 uniform vec3 uLongLineColor;
 uniform vec3 uShortLineColor;
 uniform vec3 uTopFoamColor;
+uniform vec3 uFlowingFoamColor;
 uniform float uTime;
 
 vec3 layer1() {
@@ -122,8 +123,29 @@ vec3 whiteFoamLayer() {
   return mix(shortLineLayerColor, uTopFoamColor, foamMask);
 }
 
+vec3 flowingWhiteFoamLayer() {
+  vec3 whiteFoamLayerColor = whiteFoamLayer();
+  float noise = perlinNoise3D(vec3(vUv.x * 5.0, vUv.y * 5.0 + uTime, 1.0));
+
+  vec2 modifiedvUvLinear = vUv;
+  vec2 modifiedvUvNoisy = vUv;
+  modifiedvUvNoisy.x += noise;
+  modifiedvUvLinear.x += noise * 0.3;
+  modifiedvUvLinear.x += 1.05;
+
+  float linearGradient = sin(modifiedvUvLinear.x * 5.0);
+  linearGradient = step(0.1, linearGradient);
+  float noisyGradient = sin(modifiedvUvNoisy.x * 10.0);
+
+  float gradient = linearGradient * noisyGradient;
+
+  gradient = step(0.8, gradient);
+
+  return mix(whiteFoamLayerColor, uFlowingFoamColor, gradient);
+}
+
 void main() {
   vec3 finalColor = vec3(1.0);
-  finalColor = whiteFoamLayer();
+  finalColor = flowingWhiteFoamLayer();
   gl_FragColor = vec4(finalColor, 1.0);
 }

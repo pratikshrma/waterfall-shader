@@ -6,14 +6,19 @@ import waterfallBaseFragShader from '../Shaders/WaterfallBase/frag.glsl'
 import waterfallBaseVertShader from '../Shaders/WaterfallBase/vert.glsl'
 import waterfallSplashAreaVertShader from '../Shaders/WaterfallSplashArea/vert.glsl'
 import waterfallSplashAreaFragShader from '../Shaders/WaterfallSplashArea/frag.glsl'
+import rockFragShader from '../Shaders/Rocks/frag.glsl'
+import rockVertShader from '../Shaders/Rocks/vert.glsl'
 import { useFrame } from "@react-three/fiber"
 import { folder, useControls } from "leva"
 import { useGLTF } from "@react-three/drei"
+import WaterfallSplash from "./WaterSplash"
+
 
 const Experience = () => {
   const waterFallMeshRef = useRef<THREE.Mesh | null>(null)
   const waterFallBaseMeshRef = useRef<THREE.Mesh | null>(null)
   const waterFallSplashAreaMeshRef = useRef<THREE.Mesh | null>(null)
+  const rockMeshRef = useRef<THREE.Mesh | null>(null)
 
   const { nodes: splashAreaNodes } = useGLTF('models/stylizedwaterfallSplashArea.glb')
 
@@ -27,7 +32,8 @@ const Experience = () => {
     mixStrength,
     longLineColor,
     shortLineColor,
-    topFoam,
+    topfoam,
+    flowingFoam,
     baseColor1,
     baseColor2,
     baseColor3,
@@ -44,6 +50,8 @@ const Experience = () => {
     splashColor1,
     splashColor2,
     splashColor3,
+    rockColor1,
+    rockColor2
   } = useControls(
     {
       'Waterfall Color': folder({
@@ -65,8 +73,11 @@ const Experience = () => {
         shortLineColor: {
           value: '#ffffff'
         },
-        topFoam: {
+        topfoam: {
           value: '#ebebeb'
+        },
+        flowingFoam: {
+          value: '#e8e8e8'
         }
       }),
       'Base Color': folder({
@@ -146,6 +157,14 @@ const Experience = () => {
         splashColor3: {
           value: '#cc00cc'
         },
+      }),
+      'Rocks': folder({
+        rockColor1: {
+          value: '#ff0000',
+        },
+        rockColor2: {
+          value: '#00ff00',
+        }
       })
     }
   )
@@ -168,7 +187,8 @@ const Experience = () => {
         uColorLayerL4: { value: new THREE.Color() },
         uLongLineColor: { value: new THREE.Color() },
         uShortLineColor: { value: new THREE.Color() },
-        uTopFoamColor: { value: new THREE.Color() }
+        uTopFoamColor: { value: new THREE.Color() },
+        uFlowingFoamColor: { value: new THREE.Color() }
       },
       toneMapped: false
     })
@@ -210,15 +230,7 @@ const Experience = () => {
   }, [])
 
   const { waterfallSplashAreaGeometry, waterfallSplashAreaMaterial } = useMemo(() => {
-    // const path = new THREE.LineCurve3(
-    //   new THREE.Vector3(-3, 0, 0),
-    //   new THREE.Vector3(3, 0, 0)
-    // )
-    // const waterfallSplashAreaGeometry = new THREE.TubeGeometry(path, 64, 0.3, 8, false)
     const waterfallSplashAreaGeometry = (splashAreaNodes.NurbsPath as THREE.Mesh).geometry
-    // const waterfallSplashAreaMaterial = new THREE.MeshNormalMaterial({
-    //   side: THREE.DoubleSide,
-    // })
     const waterfallSplashAreaMaterial = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
       vertexShader: waterfallSplashAreaVertShader,
@@ -234,12 +246,28 @@ const Experience = () => {
     })
 
     return { waterfallSplashAreaGeometry, waterfallSplashAreaMaterial }
+  }, [splashAreaNodes])
+
+  const { rockMaterial, rockGeometry } = useMemo(() => {
+    const rockGeometry = new THREE.IcosahedronGeometry(1, 3)
+    const rockMaterial = new THREE.ShaderMaterial({
+      vertexShader: rockVertShader,
+      fragmentShader: rockFragShader,
+      uniforms: {
+        uIndex: { value: 0 },
+        uRockColor1: { value: new THREE.Color() },
+        uRockColor2: { value: new THREE.Color() }
+      }
+    })
+
+    return { rockGeometry, rockMaterial }
   }, [])
 
   useFrame((state) => {
     if (waterFallMeshRef.current) {
       const waterFallMaterial = waterFallMeshRef.current.material as THREE.ShaderMaterial
-      waterFallMaterial.uniforms.uTime.value = state.clock.elapsedTime * 0.5
+
+      // waterFallMaterial.uniforms.uTime.value = state.clock.elapsedTime * 0.5
       waterFallMaterial.uniforms.uGradientStrength.value = gradientStrength
       waterFallMaterial.uniforms.uNoiseStep.value = noiseStep
       waterFallMaterial.uniforms.uNoiseScale.value = noiseScale
@@ -250,13 +278,14 @@ const Experience = () => {
       waterFallMaterial.uniforms.uColorLayerL4.value.set(colorLayerL4)
       waterFallMaterial.uniforms.uLongLineColor.value.set(longLineColor)
       waterFallMaterial.uniforms.uShortLineColor.value.set(shortLineColor)
-      waterFallMaterial.uniforms.uTopFoamColor.value.set(topFoam)
+      waterFallMaterial.uniforms.uTopFoamColor.value.set(topfoam)
+      waterFallMaterial.uniforms.uFlowingFoamColor.value.set(flowingFoam)
     }
 
     if (waterFallBaseMeshRef.current) {
       const waterFallBaseMaterial = waterFallBaseMeshRef.current.material as THREE.ShaderMaterial
 
-      waterFallBaseMaterial.uniforms.uTime.value = state.clock.elapsedTime
+      // waterFallBaseMaterial.uniforms.uTime.value = state.clock.elapsedTime
       waterFallBaseMaterial.uniforms.uBaseColor1.value.set(baseColor1)
       waterFallBaseMaterial.uniforms.uBaseColor2.value.set(baseColor2)
       waterFallBaseMaterial.uniforms.uBaseColor3.value.set(baseColor3)
@@ -280,13 +309,25 @@ const Experience = () => {
       waterfallSplashMaterial.uniforms.uSplashColor2.value.set(splashColor2)
       waterfallSplashMaterial.uniforms.uSplashColor3.value.set(splashColor3)
     }
+
+    if (rockMeshRef.current) {
+      const rockMaterial = rockMeshRef.current.material as THREE.ShaderMaterial
+
+      rockMaterial.uniforms.uIndex.value = 0;
+      rockMaterial.uniforms.uRockColor1.value.set(rockColor1)
+      rockMaterial.uniforms.uRockColor2.value.set(rockColor2)
+    }
+
   })
 
   return (
     <>
       {/* <mesh ref={waterFallMeshRef} geometry={waterfallGeometry} material={waterfallMaterial} /> */}
       {/* <mesh rotation={[Math.PI / 1.5, 0, 0]} ref={waterFallBaseMeshRef} geometry={waterfallBaseGeometry} material={waterfallBaseMaterial} /> */}
-      <mesh rotation={[Math.PI / 1.5, 0, 0]} ref={waterFallSplashAreaMeshRef} geometry={waterfallSplashAreaGeometry} material={waterfallSplashAreaMaterial} />
+      {/* <mesh ref={waterFallSplashAreaMeshRef} geometry={waterfallSplashAreaGeometry} material={waterfallSplashAreaMaterial} /> */}
+      <mesh ref={rockMeshRef} geometry={rockGeometry} material={rockMaterial} />
+      {/* <WaterfallSplash /> */}
+
     </>
   )
 }

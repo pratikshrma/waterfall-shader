@@ -54,8 +54,10 @@ vec3 layer1() {
   modifiedvUv.y *= 2.0;
   modifiedvUv.y -= 0.5;
   float linearGradient = pow(modifiedvUv.y, 4.0);
-  float voronoiNoise = voronoi2d(vUv * 15.0);
+  float voronoiNoise = voronoi2d(vec2(vUv.x * 15.0, vUv.y * 8.0));
+  float perlinNoise = perlinNoise3D(vec3(vUv * 15.0 - uTime, 1.0));
   linearGradient += voronoiNoise;
+  linearGradient += perlinNoise;
   linearGradient = step(0.95, linearGradient);
 
   return mix(uBaseColor1, uBaseColor2, linearGradient);
@@ -67,9 +69,11 @@ vec3 layer2() {
   vec2 modifiedvUv = vUv;
   modifiedvUv.y *= 2.0;
   float linearGradient = pow(modifiedvUv.y, 4.0);
-  float voronoiNoise = voronoi2d(vUv * 15.0);
+  float voronoiNoise = voronoi2d(vec2(vUv.x * 14.0, vUv.y * 15.0));
+  float perlinNoise = perlinNoise3D(vec3(vUv * 15.0 - uTime, 0.0));
   linearGradient += voronoiNoise;
-  linearGradient = step(0.95, linearGradient);
+  linearGradient += perlinNoise;
+  linearGradient = step(0.9, linearGradient);
 
   return mix(uBaseColor3, layer1Color, linearGradient);
 }
@@ -81,8 +85,8 @@ vec3 layer3() {
   modifiedvUv.y *= 8.0;
   modifiedvUv.y += 7.3;
   float linearGradient = pow(modifiedvUv.y, 4.0);
-  float voronoiNoise = voronoi2d(vUv * 15.0);
-  float perlinNoise = perlinNoise3D(vec3(vUv * 15.0, 0.0));
+  float voronoiNoise = voronoi2d(vUv * 15.0 - uTime);
+  float perlinNoise = perlinNoise3D(vec3(vUv * 15.0, 2.0));
 
   linearGradient += voronoiNoise;
   linearGradient += perlinNoise;
@@ -99,7 +103,7 @@ vec3 layer4() {
   modifiedvUv.y += 8.5;
   float linearGradient = pow(modifiedvUv.y, 4.0);
   float voronoiNoise = voronoi2d(vUv * 15.0);
-  float perlinNoise = perlinNoise3D(vec3(vUv * 15.0, 0.0));
+  float perlinNoise = perlinNoise3D(vec3(vUv * 15.0 - uTime, 3.0));
 
   linearGradient += voronoiNoise;
   linearGradient += perlinNoise;
@@ -115,8 +119,8 @@ vec3 randomBubbles() {
   modifiedvUv.y *= 2.0;
 
   float noise = perlinNoise3D(vec3(modifiedvUv * 10.0, 10.0));
-  noise += perlinNoise3D(vec3(vUv * 25.0, 0.0));
-  noise += perlinNoise3D(vec3(vUv * 60.0, 0.0));
+  noise += perlinNoise3D(vec3(vUv * 25.0 - uTime, 0.0));
+  noise += perlinNoise3D(vec3(vUv * 60.0 + uTime, 0.0));
   noise = step(0.80, noise);
 
   return mix(layer4Color, uBaseColor4, noise);
@@ -127,13 +131,12 @@ vec3 foamLayer() {
   vec2 modifiedvUv = vUv;
 
   float uvNoise = perlinNoise3D(vec3(vUv * 1.5, 0.1));
-  modifiedvUv += uvNoise * 0.3; // stronger warp to break rigidity
+  modifiedvUv += uvNoise * 0.3;
 
-  // vec2 v1 = euclideanVoronoi(modifiedvUv * 12.0 + uTime * 0.3);
-  // vec2 v2 = euclideanVoronoi(modifiedvUv * 15.0 - uTime * 0.5);
-
-  vec2 v1 = euclideanVoronoi(modifiedvUv * 12.0);
-  vec2 v2 = euclideanVoronoi(modifiedvUv * 15.0);
+  vec2 v1 = euclideanVoronoi(
+      vec2(modifiedvUv.x * 12.0, modifiedvUv.y * 12.0 - uTime));
+  vec2 v2 = euclideanVoronoi(
+      vec2(modifiedvUv.x * 15.0, modifiedvUv.y * 25.0 - uTime));
 
   float foam1 = v1.y - v1.x;
   float foam2 = v2.y - v2.x;
