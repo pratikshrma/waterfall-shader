@@ -12,6 +12,7 @@ import { useFrame } from "@react-three/fiber"
 import { folder, useControls } from "leva"
 import { useGLTF } from "@react-three/drei"
 import WaterfallSplash from "./WaterSplash"
+import WaterFallModel from "./WaterFallModel"
 
 
 const Experience = () => {
@@ -267,7 +268,7 @@ const Experience = () => {
     if (waterFallMeshRef.current) {
       const waterFallMaterial = waterFallMeshRef.current.material as THREE.ShaderMaterial
 
-      // waterFallMaterial.uniforms.uTime.value = state.clock.elapsedTime * 0.5
+      waterFallMaterial.uniforms.uTime.value = state.clock.elapsedTime * 0.5
       waterFallMaterial.uniforms.uGradientStrength.value = gradientStrength
       waterFallMaterial.uniforms.uNoiseStep.value = noiseStep
       waterFallMaterial.uniforms.uNoiseScale.value = noiseScale
@@ -285,7 +286,7 @@ const Experience = () => {
     if (waterFallBaseMeshRef.current) {
       const waterFallBaseMaterial = waterFallBaseMeshRef.current.material as THREE.ShaderMaterial
 
-      // waterFallBaseMaterial.uniforms.uTime.value = state.clock.elapsedTime
+      waterFallBaseMaterial.uniforms.uTime.value = state.clock.elapsedTime
       waterFallBaseMaterial.uniforms.uBaseColor1.value.set(baseColor1)
       waterFallBaseMaterial.uniforms.uBaseColor2.value.set(baseColor2)
       waterFallBaseMaterial.uniforms.uBaseColor3.value.set(baseColor3)
@@ -325,9 +326,10 @@ const Experience = () => {
       {/* <mesh ref={waterFallMeshRef} geometry={waterfallGeometry} material={waterfallMaterial} /> */}
       {/* <mesh rotation={[Math.PI / 1.5, 0, 0]} ref={waterFallBaseMeshRef} geometry={waterfallBaseGeometry} material={waterfallBaseMaterial} /> */}
       {/* <mesh ref={waterFallSplashAreaMeshRef} geometry={waterfallSplashAreaGeometry} material={waterfallSplashAreaMaterial} /> */}
-      <mesh ref={rockMeshRef} geometry={rockGeometry} material={rockMaterial} />
+      {/* <mesh ref={rockMeshRef} geometry={rockGeometry} material={rockMaterial} /> */}
       {/* <WaterfallSplash /> */}
 
+      <WaterFallModel />
     </>
   )
 }
