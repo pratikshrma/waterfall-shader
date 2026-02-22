@@ -2,10 +2,12 @@ import { OrbitControls } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import Experience from "./Components/Experience"
 import * as THREE from 'three'
+import { Leva } from "leva"
 
 const App = () => {
   return (
     <>
+      <Leva collapsed />
       <Canvas flat gl={{ toneMapping: THREE.AgXToneMapping }} camera={{
         position: [-30, 30, 30]
       }}>
