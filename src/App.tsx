@@ -7,7 +7,7 @@ const App = () => {
   return (
     <>
       <Canvas flat gl={{ toneMapping: THREE.AgXToneMapping }} camera={{
-        position: [30, 30, 30]
+        position: [-30, 30, 30]
       }}>
         <color attach='background' args={['#000000']} />
         <OrbitControls />

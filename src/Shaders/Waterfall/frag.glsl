@@ -1,6 +1,6 @@
 #include "../Deps/glsl-perlin-noise/perlin.glsl"
-#include "../Deps/glsl-voronoi-noise/2d.glsl"
-#include "../Deps/glsl-voronoi-noise/3d.glsl"
+#include "../Deps/glsl-voronoi-noise/voronoi2d.glsl"
+#include "../Deps/glsl-voronoi-noise/voronoi3d.glsl"
 
 varying vec2 vUv;
 
