@@ -149,7 +149,7 @@ vec3 foamLayer() {
   modifedGradientvUv.y -= 0.05;
   modifedGradientvUv.x -= 0.157;
   float gradientMask = length(modifedGradientvUv);
-  gradientMask = 1.0 - smoothstep(0.1, 0.2, gradientMask);
+  gradientMask = 1.0 - smoothstep(0.0, 0.2, gradientMask);
   gradientMask += perlinNoise3D(vec3(vUv * 16.0, uTime)) * 0.2;
   gradientMask = step(0.11, gradientMask);
 
