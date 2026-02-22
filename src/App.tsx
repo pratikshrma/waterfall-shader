@@ -6,8 +6,10 @@ import * as THREE from 'three'
 const App = () => {
   return (
     <>
-      <Canvas flat gl={{ toneMapping: THREE.NoToneMapping }}>
-        <color attach='background' args={['#ccc']} />
+      <Canvas flat gl={{ toneMapping: THREE.AgXToneMapping }} camera={{
+        position: [30, 30, 30]
+      }}>
+        <color attach='background' args={['#000000']} />
         <OrbitControls />
         <Experience />
       </Canvas>

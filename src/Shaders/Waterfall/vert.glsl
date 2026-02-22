@@ -3,10 +3,13 @@
 varying vec2 vUv;
 
 uniform float uTime;
+uniform float uRandomNumber;
 
 void main() {
-  vUv = uv;
-  float noise = perlinNoise3D(position * 8.0 + uTime);
+  // vUv = uv;
+  vUv = vec2(uv.x, 1.0 - uv.y);
+
+  float noise = perlinNoise3D(position * 2.0 + uTime + uRandomNumber * 10.0);
   vec3 modifiedPosition = position;
   modifiedPosition.z += noise * 0.2;
   modifiedPosition.x += noise * 0.02;

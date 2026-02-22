@@ -2,29 +2,45 @@ import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const BUBBLE_COUNT = 400;
+const BUBBLE_COUNT = 300;
 const GRAVITY = 9.8;
 
-function createBubble(prewarm = false) {
+interface Bubble {
+  x: number;
+  y: number;
+  z: number;
+  vx: number;
+  vy: number;
+  vz: number;
+  life: number;
+  maxLife: number;
+  scale: number;
+}
+
+function createBubble(prewarm = false): Bubble {
   const angle = Math.random() * Math.PI * 2;
   const speed = Math.random() * 3 + 1;
   const maxLife = Math.random() * 1.8 + 0.6;
 
   return {
-    x: (Math.random() - 0.5) * 0.4,
-    y: 0,
-    z: (Math.random() - 0.5) * 0.4,
+    x: (Math.random() - 0.5) * 25,
+    y: -2,
+    z: (Math.random() - 0.5) * 3,
     vx: Math.cos(angle) * speed * 0.6,
-    vy: Math.random() * speed + 1.5,
-    vz: Math.sin(angle) * speed * 0.6,
+    vy: Math.random() * speed + 5.5,
+    vz: Math.sin(angle) * speed * 1.6,
     life: prewarm ? Math.random() * maxLife : 0,
     maxLife,
     scale: Math.random() * 0.04 + 0.01,
   };
 }
 
-export default function WaterfallSplash({ position = [0, 0, 0] }) {
-  const meshRef = useRef();
+interface WaterfallSplashProps {
+  position?: [number, number, number]
+}
+
+export default function WaterfallSplash({ position = [0, 0, 0] }: WaterfallSplashProps) {
+  const meshRef = useRef<THREE.InstancedMesh>(null!);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   const bubbles = useMemo(
@@ -33,6 +49,8 @@ export default function WaterfallSplash({ position = [0, 0, 0] }) {
   );
 
   useFrame((_, delta) => {
+    if (!meshRef.current) return;
+
     const d = Math.min(delta, 0.05);
 
     for (let i = 0; i < BUBBLE_COUNT; i++) {
@@ -69,16 +87,21 @@ export default function WaterfallSplash({ position = [0, 0, 0] }) {
   });
 
   return (
-    <instancedMesh ref={meshRef} args={[null, null, BUBBLE_COUNT]}>
-      <icosahedronGeometry args={[1, 1]} />
-      <meshPhysicalMaterial
-        color="#a8d8f0"
-        transparent
-        opacity={0.7}
-        roughness={0.05}
-        metalness={0.0}
-        transmission={0.9}
-        thickness={0.5}
+    <instancedMesh ref={meshRef} args={[undefined, undefined, BUBBLE_COUNT]}>
+      <icosahedronGeometry args={[1.5, 1]} />
+      {/* <meshPhysicalMaterial */}
+      {/*   color="#ffffff" */}
+      {/*   transparent */}
+      {/*   opacity={1} */}
+      {/*   roughness={0.05} */}
+      {/*   metalness={0.0} */}
+      {/*   transmission={0.9} */}
+      {/*   thickness={0.5} */}
+      {/* /> */}
+      <meshBasicMaterial
+        color="#ffffff"
+        toneMapped={false}
+        wireframe={true}
       />
     </instancedMesh>
   );

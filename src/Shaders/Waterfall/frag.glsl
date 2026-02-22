@@ -17,11 +17,13 @@ uniform vec3 uShortLineColor;
 uniform vec3 uTopFoamColor;
 uniform vec3 uFlowingFoamColor;
 uniform float uTime;
+uniform float uRandomNumber;
 
 vec3 layer1() {
   vec2 localUv = vUv;
   localUv.y += 0.3;
-  float noise = voronoi2d(vUv * uNoiseScale + uTime * 0.7);
+  float noise =
+      voronoi2d(vUv * uNoiseScale + uTime * 0.7 + uRandomNumber * 5.0);
   float gradient = 1.0 - pow(localUv.y, uGradientStrength);
   float distortedGradient = gradient + (noise)*uMixStrength;
   float mask = step(uNoiseStep, distortedGradient);
@@ -32,7 +34,8 @@ vec3 layer2() {
   vec2 localUv = vUv;
   localUv.y += 0.5;
   vec3 layer1Color = layer1();
-  float noise = voronoi2d(localUv.yx * uNoiseScale + uTime * 0.8);
+  float noise =
+      voronoi2d(localUv.yx * uNoiseScale + uTime * 0.8 + uRandomNumber * 123.0);
   // yx just to give a different seed
   float gradient = 1.0 - pow(localUv.y, uGradientStrength);
   float distortedGradient = gradient + (noise)*uMixStrength;
@@ -47,15 +50,17 @@ vec3 layer3() {
   localUv.x *= 1.0;
   localUv.y *= 6.0;
 
-  float noise = perlinNoise3D(vec3(vUv.x * 4.0, vUv.y * 8.0, uTime * 0.8));
+  float noise = perlinNoise3D(
+      vec3(vUv.x * 4.0, vUv.y * 8.0, uTime * 0.8 + uRandomNumber));
   localUv += noise * 1.3;
   float dist = step(0.5, length(localUv - vec2(0.5, 5.0)));
   return mix(layer2Color, uColorLayerL4, 1.0 - dist);
 }
 
 vec3 longLineLayer() {
-  float offsetX = perlinNoise3D(vec3(vUv * 3.0, uTime * 0.1));
-  float offsetY = perlinNoise3D(vec3(vUv * 3.0 + 100.0, uTime * 0.1));
+  float offsetX = perlinNoise3D(vec3(vUv * 3.0, uTime * 0.1 + uRandomNumber));
+  float offsetY =
+      perlinNoise3D(vec3(vUv * 3.0 + 100.0, uTime * 0.1 + uRandomNumber));
 
   vec2 offset = vec2(offsetX, offsetY) * 0.031; // 0.1 = distortion strength
 
@@ -87,8 +92,8 @@ vec3 shortLineLayer() {
   centerRegion = smoothstep(0.6, 0.7, centerRegion);
   centerRegion = 1.0 - centerRegion;
 
-  float offsetX = perlinNoise3D(vec3(vUv * 4.0, uTime * 0.1));
-  float offsetY = perlinNoise3D(vec3(vUv * 6.0, uTime * 0.1));
+  float offsetX = perlinNoise3D(vec3(vUv * 4.0, uTime * 0.1 + uRandomNumber));
+  float offsetY = perlinNoise3D(vec3(vUv * 6.0, uTime * 0.1 + uRandomNumber));
   vec2 offset = vec2(offsetX, offsetY) * 0.1;
   vec2 distortedUv = vUv + offset;
 
@@ -96,7 +101,7 @@ vec3 shortLineLayer() {
   vec4 layer3ColorRGBA = vec4(layer3Color, 1.0);
   float lineMask = step(0.995, abs(sin(distortedUv.x * 20.0)));
 
-  vec4 lineColor = vec4(uShortLineColor, 0.5);
+  vec4 lineColor = vec4(uShortLineColor, 0.8);
   float finalMask = lineMask * centerRegion;
 
   vec3 finalColor =
@@ -111,7 +116,8 @@ vec3 whiteFoamLayer() {
 
   vec2 foamMaskUv = vUv;
   foamMaskUv.y *= 0.8;
-  float noise = perlinNoise3D(vec3(foamMaskUv * 10.0 + uTime, uTime));
+  float noise =
+      perlinNoise3D(vec3(foamMaskUv * 10.0 + uTime, uTime + uRandomNumber));
   foamMaskUv.y += noise;
   vec2 toCenter = foamMaskUv - vec2(0.5, 1.5);
   toCenter.x *= 0.5;
@@ -125,7 +131,8 @@ vec3 whiteFoamLayer() {
 
 vec3 flowingWhiteFoamLayer() {
   vec3 whiteFoamLayerColor = whiteFoamLayer();
-  float noise = perlinNoise3D(vec3(vUv.x * 5.0, vUv.y * 5.0 + uTime, 1.0));
+  float noise = perlinNoise3D(
+      vec3(vUv.x * 9.0, vUv.y * 3.0 + uTime, uRandomNumber * 13.0));
 
   vec2 modifiedvUvLinear = vUv;
   vec2 modifiedvUvNoisy = vUv;

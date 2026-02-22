@@ -132,29 +132,32 @@ vec3 foamLayer() {
 
   float uvNoise = perlinNoise3D(vec3(vUv * 1.5, 0.1));
   modifiedvUv += uvNoise * 0.3;
+  modifiedvUv.y *= 0.9;
 
   vec2 v1 = euclideanVoronoi(
-      vec2(modifiedvUv.x * 12.0, modifiedvUv.y * 12.0 - uTime));
-  vec2 v2 = euclideanVoronoi(
-      vec2(modifiedvUv.x * 15.0, modifiedvUv.y * 25.0 - uTime));
+      vec2(modifiedvUv.x * 16.0 - uTime, modifiedvUv.y * 16.0 - uTime));
+  vec2 v2 = euclideanVoronoi(vec2(modifiedvUv.x * 8.0 - uTime * 0.3,
+                                  modifiedvUv.y * 8.0 - uTime)) *
+            0.9;
 
   float foam1 = v1.y - v1.x;
   float foam2 = v2.y - v2.x;
 
   vec2 modifedGradientvUv = vUv;
-  modifedGradientvUv /= 5.0;
-  modifedGradientvUv.y += 0.05;
-  modifedGradientvUv.x -= 0.1;
+  // modifedGradientvUv.y -= 0.1;
+  modifedGradientvUv /= 3.0;
+  modifedGradientvUv.y -= 0.05;
+  modifedGradientvUv.x -= 0.157;
   float gradientMask = length(modifedGradientvUv);
   gradientMask = 1.0 - smoothstep(0.1, 0.2, gradientMask);
-  // gradientMask += perlinNoise3D(vec3(vUv * 16.0, uTime * 0.3));
-  gradientMask += perlinNoise3D(vec3(vUv * 16.0, 0.0));
-  gradientMask = step(0.7, gradientMask);
+  gradientMask += perlinNoise3D(vec3(vUv * 16.0, uTime)) * 0.2;
+  gradientMask = step(0.11, gradientMask);
 
-  float foam = foam1 * foam2 / 2.0; // multiply to get grouping effect
+  float foam = foam1 * foam2 / 1.0; // multiply to get grouping effect
   foam = step(0.015, foam);
   foam = 1.0 - foam;
 
+  // return vec3(gradientMask);
   return mix(randomBubbleColor, uBaseColor5, foam * gradientMask);
 }
 
